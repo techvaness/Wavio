@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(cp -r /c/Users/JCV/Desktop/Wavio/wavio-temp/* /c/Users/JCV/Desktop/Wavio/)",
+      "Bash(cp /c/Users/JCV/Desktop/Wavio/wavio-temp/.gitignore /c/Users/JCV/Desktop/Wavio/)",
+      "Bash(rm -rf /c/Users/JCV/Desktop/Wavio/wavio-temp)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\JCV\\Desktop\\Wavio"
+    ]
+  }
+}
