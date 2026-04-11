@@ -82,7 +82,37 @@ db.exec(`
     actor  TEXT,
     detail TEXT NOT NULL DEFAULT '{}'
   );
+
+  CREATE TABLE IF NOT EXISTS automation_rules (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    workspace_id INTEGER REFERENCES workspaces(id),
+    name         TEXT NOT NULL,
+    trigger_type TEXT NOT NULL DEFAULT 'keyword',
+    conditions   TEXT NOT NULL DEFAULT '{}',
+    actions      TEXT NOT NULL DEFAULT '[]',
+    enabled      INTEGER NOT NULL DEFAULT 1,
+    runs         INTEGER NOT NULL DEFAULT 0,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS integrations (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    workspace_id INTEGER REFERENCES workspaces(id),
+    channel      TEXT NOT NULL,
+    config       TEXT NOT NULL DEFAULT '{}',
+    connected    INTEGER NOT NULL DEFAULT 0,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(workspace_id, channel)
+  );
 `)
+
+// ── Column migrations (safe to run multiple times) ────────────────────────────
+const colMigrations = [
+  'ALTER TABLE messages ADD COLUMN attachment_url TEXT',
+  'ALTER TABLE messages ADD COLUMN attachment_name TEXT',
+  'ALTER TABLE messages ADD COLUMN attachment_size INTEGER',
+]
+for (const sql of colMigrations) { try { db.exec(sql) } catch { /* already exists */ } }
 
 // ── Seed ─────────────────────────────────────────────────────────────────────
 
