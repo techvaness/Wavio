@@ -12,6 +12,12 @@ import teamRoutes from './routes/team.js'
 import dashboardRoutes from './routes/dashboard.js'
 import cannedRoutes from './routes/canned.js'
 import adminRoutes from './routes/admin.js'
+import analyticsRoutes from './routes/analytics.js'
+import automationRoutes from './routes/automations.js'
+import uploadsRoutes from './routes/uploads.js'
+import integrationsRoutes from './routes/integrations.js'
+import billingRoutes from './routes/billing.js'
+import systemRoutes from './routes/system.js'
 import db from './db.js'
 
 // ── A02/A07: Fail hard if JWT_SECRET is the insecure default in production ────
@@ -63,6 +69,13 @@ app.use('/api/team',          teamRoutes)
 app.use('/api/dashboard',     dashboardRoutes)
 app.use('/api/canned',        cannedRoutes)
 app.use('/api/admin',         adminRoutes)
+app.use('/api/analytics',    analyticsRoutes)
+app.use('/api/automations',  automationRoutes)
+app.use('/api/upload',       uploadsRoutes)
+app.use('/api/uploads',      uploadsRoutes)
+app.use('/api/integrations', integrationsRoutes)
+app.use('/api/billing',      billingRoutes)
+app.use('/api/system',       systemRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }))
 

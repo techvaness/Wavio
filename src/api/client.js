@@ -95,3 +95,40 @@ export const adminApi = {
   conversations: () => api.get('/admin/conversations'),
   auditLog:      () => api.get('/admin/audit-log'),
 }
+
+export const analyticsApi = {
+  workspace: () => api.get('/analytics'),
+  platform:  () => api.get('/admin/stats'),
+}
+
+export const automationsApi = {
+  list:    ()           => api.get('/automations'),
+  create:  (body)       => api.post('/automations', body),
+  update:  (id, body)   => api.patch(`/automations/${id}`, body),
+  delete:  (id)         => api.delete(`/automations/${id}`),
+}
+
+export const integrationsApi = {
+  list:       ()              => api.get('/integrations'),
+  connect:    (ch, cfg)       => api.post(`/integrations/${ch}/connect`, cfg),
+  disconnect: (ch)            => api.delete(`/integrations/${ch}`),
+}
+
+export const billingApi = {
+  summary:       () => api.get('/billing/summary'),
+  subscriptions: () => api.get('/billing/subscriptions'),
+}
+
+export async function uploadFile(convoId, file) {
+  const token = getToken()
+  const form  = new FormData()
+  form.append('file', file)
+  const res = await fetch(`/api/upload/${convoId}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Upload failed')
+  return data
+}

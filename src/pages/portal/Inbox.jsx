@@ -5,7 +5,7 @@ import {
   ChevronDown, Clock, User, Globe, Monitor, Phone,
   CheckCheck, SidebarClose, AlertCircle, X, Hash, Loader2,
 } from 'lucide-react'
-import { convApi, teamApi, cannedApi } from '../../api/client'
+import { convApi, teamApi, cannedApi, uploadFile } from '../../api/client'
 import { useSocket } from '../../context/SocketContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -56,8 +56,10 @@ export default function Inbox() {
   const [sending, setSending]         = useState(false)
   const [typingUsers, setTypingUsers] = useState([])
   const [search, setSearch]           = useState('')
+  const [uploading, setUploading]     = useState(false)
   const messagesEndRef = useRef(null)
-  const typingTimer = useRef(null)
+  const typingTimer    = useRef(null)
+  const fileInputRef   = useRef(null)
 
   // Load initial data
   useEffect(() => {
@@ -163,6 +165,21 @@ export default function Inbox() {
       typingTimer.current = setTimeout(() => {
         socket?.emit('typing:stop', { convoId: active.id })
       }, 1500)
+    }
+  }
+
+  async function handleFileSelect(e) {
+    const file = e.target.files?.[0]
+    if (!file || !active) return
+    e.target.value = ''
+    setUploading(true)
+    try {
+      await uploadFile(active.id, file)
+      // message:new socket event will add it to messages automatically
+    } catch (err) {
+      console.error('Upload failed:', err)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -351,7 +368,19 @@ export default function Inbox() {
                       <div className="max-w-[68%]">
                         <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                           m.from_type === 'agent' ? 'bg-[#1a3fbf] text-white rounded-br-sm' : 'bg-white border border-[#e4e7ed] text-[#0f172a] rounded-bl-sm shadow-sm'
-                        }`}>{m.text}</div>
+                        }`}>
+                          {m.text}
+                          {m.attachment_url && (
+                            <a href={m.attachment_url} target="_blank" rel="noopener noreferrer"
+                              className={`flex items-center gap-2 mt-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                                m.from_type === 'agent' ? 'bg-white/15 hover:bg-white/25 text-white' : 'bg-[#f1f5f9] hover:bg-[#e4e7ed] text-[#475569]'
+                              }`}>
+                              <Paperclip size={11} className="flex-shrink-0" />
+                              <span className="truncate">{m.attachment_name || 'Attachment'}</span>
+                              {m.attachment_size && <span className="ml-auto flex-shrink-0 opacity-60">{Math.round(m.attachment_size / 1024)}KB</span>}
+                            </a>
+                          )}
+                        </div>
                         <div className={`flex items-center gap-1.5 mt-1 ${m.from_type === 'agent' ? 'justify-end' : 'justify-start'}`}>
                           {m.from_type === 'agent' && <span className="text-[9px] text-[#94a3b8]">{m.agent_name}</span>}
                           <span className="text-[9px] text-[#94a3b8]">{formatTime(m.created_at)}</span>
@@ -410,7 +439,13 @@ export default function Inbox() {
               />
               <div className="flex items-center justify-between px-3 pb-3">
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#475569] hover:bg-[#f1f5f9] transition-colors"><Paperclip size={15} /></button>
+                  <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect}
+                    accept="image/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip" />
+                  <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                    className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#475569] hover:bg-[#f1f5f9] transition-colors disabled:opacity-50"
+                    title="Attach file">
+                    {uploading ? <Loader2 size={15} className="animate-spin" /> : <Paperclip size={15} />}
+                  </button>
                   <button className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#475569] hover:bg-[#f1f5f9] transition-colors"><Smile size={15} /></button>
                   <button onClick={() => setShowCanned(!showCanned)}
                     className={`p-1.5 rounded-lg transition-colors ${showCanned ? 'bg-[#eef2ff] text-[#1a3fbf]' : 'text-[#94a3b8] hover:text-[#475569] hover:bg-[#f1f5f9]'}`}>

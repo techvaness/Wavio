@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import db from '../db.js'
 import { requireAuth } from '../middleware/auth.js'
+import { executeRules } from './automations.js'
 
 const router = Router()
 
@@ -120,6 +121,11 @@ router.post('/:id/messages', requireAuth, (req, res) => {
     SELECT m.*, u.name AS agent_name FROM messages m
     LEFT JOIN users u ON u.id = m.from_id WHERE m.id = ?
   `).get(result.lastInsertRowid)
+
+  // run automation rules against inbound customer messages
+  if (fromType === 'agent') {
+    try { executeRules(req.user.workspace_id, convo.id, text.trim(), convo.channel) } catch { /* never break a send */ }
+  }
 
   // broadcast to all sockets in this conversation room
   const io = req.app.get('io')
