@@ -116,10 +116,10 @@ export default function Home() {
             transition={{ delay: 0.3, duration: 0.5 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10"
           >
-            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-[#4cc61e] hover:bg-[#3aaa10] text-white font-semibold rounded-full transition-all duration-200 shadow-md hover:shadow-lg text-sm text-center">
+            <Link to="/signup" className="w-auto px-6 py-2 sm:px-8 sm:py-4 bg-[#4cc61e] hover:bg-[#3aaa10] text-white font-semibold rounded-full transition-all duration-200 shadow-md hover:shadow-lg text-xs sm:text-sm text-center">
               Start for free
             </Link>
-            <Link to="/contact" className="w-full sm:w-auto px-8 py-4 bg-white/10 border border-white/40 text-white font-semibold rounded-full hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-200 text-sm text-center">
+            <Link to="/contact" className="w-auto px-6 py-2 sm:px-8 sm:py-4 bg-white/10 border border-white/40 text-white font-semibold rounded-full hover:bg-white/20 hover:border-white/70 backdrop-blur-sm transition-all duration-200 text-xs sm:text-sm text-center">
               See a live demo
             </Link>
           </motion.div>

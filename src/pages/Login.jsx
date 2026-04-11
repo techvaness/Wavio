@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, EyeOff, MessageSquare, Zap, Shield, Star, Menu, X } from 'lucide-react'
 import Logo from '../components/Logo'
+import { useAuth } from '../context/AuthContext'
 
 const perks = [
   { icon: MessageSquare, text: 'Unified inbox for every channel' },
@@ -27,9 +28,38 @@ const navLinks = [
 ]
 
 export default function Login() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [showPass, setShowPass] = useState(false)
   const [form, setForm] = useState({ email: '', password: '' })
   const [menuOpen, setMenuOpen] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const user = await login(form.email, form.password)
+      const from = location.state?.from?.pathname
+      const adminArea = from?.startsWith('/control')
+      const userArea = from?.startsWith('/portal')
+      // Only honour the saved destination if it matches the user's role
+      if (user.role === 'admin' && adminArea) {
+        navigate(from, { replace: true })
+      } else if (user.role !== 'admin' && userArea) {
+        navigate(from, { replace: true })
+      } else {
+        navigate(user.role === 'admin' ? '/control' : '/portal', { replace: true })
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -197,7 +227,12 @@ export default function Login() {
             </div>
 
             {/* Form */}
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600 mb-4">
+                {error}
+              </div>
+            )}
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-xs font-bold text-[#475569] mb-1.5 uppercase tracking-wide">Email address</label>
                 <input
@@ -229,10 +264,11 @@ export default function Login() {
               </div>
 
               <button type="submit"
-                className="w-full py-4 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white font-bold text-sm rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-blue-200 mt-2"
+                disabled={loading}
+                className="w-full py-4 bg-[#1a3fbf] hover:bg-[#2e5de6] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-blue-200 mt-2"
                 style={{ letterSpacing: '0.2px' }}
               >
-                Sign in to Wavio →
+                {loading ? 'Signing in…' : 'Sign in to Wavio →'}
               </button>
             </form>
 

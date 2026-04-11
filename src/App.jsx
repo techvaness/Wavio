@@ -1,9 +1,16 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { LanguageProvider } from './context/LanguageContext'
+import { AuthProvider } from './context/AuthContext'
+import { SocketProvider } from './context/SocketContext'
+import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute'
+
+// Public layout components
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import CTABanner from './components/CTABanner'
 import ScrollToTop from './components/ScrollToTop'
+
+// Public pages
 import Home from './pages/Home'
 import Features from './pages/Features'
 import Pricing from './pages/Pricing'
@@ -27,10 +34,33 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Community from './pages/Community'
 
-// Login & Signup have their own built-in mini-navs
+// Portal (user dashboard)
+import PortalLayout from './components/portal/PortalLayout'
+import PortalDashboard from './pages/portal/Dashboard'
+import Inbox from './pages/portal/Inbox'
+import Conversations from './pages/portal/Conversations'
+import Contacts from './pages/portal/Contacts'
+import Team from './pages/portal/Team'
+import Automation from './pages/portal/Automation'
+import Reports from './pages/portal/Reports'
+import PortalSettings from './pages/portal/Settings'
+
+// Control (admin panel)
+import ControlLayout from './components/control/ControlLayout'
+import ControlDashboard from './pages/control/Dashboard'
+import Accounts from './pages/control/Accounts'
+import Users from './pages/control/Users'
+import Billing from './pages/control/Billing'
+import AdminConversations from './pages/control/AdminConversations'
+import ControlAnalytics from './pages/control/Analytics'
+import System from './pages/control/System'
+import AuditLog from './pages/control/AuditLog'
+import ControlSettings from './pages/control/Settings'
+
+// Pages that manage their own nav
 const standalonePages = ['/login', '/signup']
 
-function Layout() {
+function PublicLayout() {
   const location = useLocation()
   const isStandalone = standalonePages.includes(location.pathname)
 
@@ -70,10 +100,56 @@ function Layout() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    </LanguageProvider>
+    <AuthProvider>
+      <SocketProvider>
+      <LanguageProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Portal — user dashboard */}
+            <Route
+              path="/portal/*"
+              element={
+                <ProtectedRoute>
+                  <PortalLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<PortalDashboard />} />
+              <Route path="inbox" element={<Inbox />} />
+              <Route path="conversations" element={<Conversations />} />
+              <Route path="contacts" element={<Contacts />} />
+              <Route path="team" element={<Team />} />
+              <Route path="automation" element={<Automation />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<PortalSettings />} />
+            </Route>
+
+            {/* Control — admin panel */}
+            <Route
+              path="/control/*"
+              element={
+                <AdminRoute>
+                  <ControlLayout />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<ControlDashboard />} />
+              <Route path="accounts" element={<Accounts />} />
+              <Route path="users" element={<Users />} />
+              <Route path="billing" element={<Billing />} />
+              <Route path="conversations" element={<AdminConversations />} />
+              <Route path="analytics" element={<ControlAnalytics />} />
+              <Route path="system" element={<System />} />
+              <Route path="audit" element={<AuditLog />} />
+              <Route path="settings" element={<ControlSettings />} />
+            </Route>
+
+            {/* Public landing site */}
+            <Route path="/*" element={<PublicLayout />} />
+          </Routes>
+        </BrowserRouter>
+      </LanguageProvider>
+      </SocketProvider>
+    </AuthProvider>
   )
 }

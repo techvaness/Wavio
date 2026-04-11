@@ -112,21 +112,56 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 pt-8 border-t border-[#e4e7ed] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-[#94a3b8]">
-            © 2026 Wavio | Built for teams that move fast. | Powered by{' '}
-            <a href="mailto:hello@stackwavedigital.com" className="font-semibold text-[#1a3fbf] hover:text-[#2e5de6] transition-colors">StackWave Digital</a>
-          </p>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-            className="text-sm text-[#94a3b8] border border-[#e4e7ed] rounded-lg px-3 py-1.5 bg-white cursor-pointer hover:border-[#1a3fbf] transition-colors"
-          >
-            {languages.map(({ code, label }) => (
-              <option key={code} value={code}>{label}</option>
-            ))}
-          </select>
+        {/* Bottom bar / subfooter */}
+        <div className="mt-12 pt-8 border-t border-[#e4e7ed]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+
+            {/* Copyright block — stacks to centre on mobile */}
+            <div className="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
+              <p className="text-sm text-[#64748b] font-medium">
+                © {new Date().getFullYear()} Wavio. All rights reserved.
+              </p>
+              <p className="text-xs text-[#94a3b8] leading-relaxed">
+                Built for teams that move fast · Powered by{' '}
+                <a
+                  href="mailto:hello@stackwavedigital.com"
+                  className="font-semibold text-[#1a3fbf] hover:text-[#2e5de6] transition-colors"
+                >
+                  StackWave Digital
+                </a>
+              </p>
+            </div>
+
+            {/* Right side — legal links + language picker */}
+            <div className="flex flex-col items-center sm:items-end gap-3">
+              {/* Legal links */}
+              <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
+                <Link to="/privacy" className="text-xs text-[#94a3b8] hover:text-[#1a3fbf] transition-colors">
+                  Privacy
+                </Link>
+                <span className="text-[#e4e7ed] text-xs select-none">|</span>
+                <Link to="/terms" className="text-xs text-[#94a3b8] hover:text-[#1a3fbf] transition-colors">
+                  Terms
+                </Link>
+                <span className="text-[#e4e7ed] text-xs select-none">|</span>
+                <Link to="/contact" className="text-xs text-[#94a3b8] hover:text-[#1a3fbf] transition-colors">
+                  Contact
+                </Link>
+              </div>
+
+              {/* Language picker */}
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                className="text-xs text-[#64748b] border border-[#e4e7ed] rounded-lg px-3 py-1.5 bg-white cursor-pointer hover:border-[#1a3fbf] focus:outline-none focus:border-[#1a3fbf] transition-colors"
+              >
+                {languages.map(({ code, label }) => (
+                  <option key={code} value={code}>{label}</option>
+                ))}
+              </select>
+            </div>
+
+          </div>
         </div>
       </div>
     </footer>
