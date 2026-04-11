@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, EyeOff, Check, Zap, Bot, Globe, Users, Menu, X } from 'lucide-react'
 import Logo from '../components/Logo'
+import { useAuth } from '../context/AuthContext'
 
 function toSlug(str) {
   return str.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 30)
@@ -25,12 +26,32 @@ const navLinks = [
 ]
 
 export default function Signup() {
+  const { register } = useAuth()
+  const navigate = useNavigate()
   const [showPass, setShowPass] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '', company: '' })
   const [terms, setTerms] = useState(false)
   const [created, setCreated] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const slug = toSlug(form.company)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!terms) return
+    setError('')
+    setLoading(true)
+    try {
+      await register(form.name, form.email, form.password, form.company)
+      setCreated(true)
+      setTimeout(() => navigate('/portal'), 2000)
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -159,7 +180,13 @@ export default function Signup() {
                   <div className="flex-1 h-px bg-[#e4e7ed]" />
                 </div>
 
-                <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setCreated(true) }}>
+                {error && (
+                  <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 mb-4">
+                    {error}
+                  </div>
+                )}
+
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-[#475569] mb-1.5 uppercase tracking-wide">Full name *</label>
@@ -230,10 +257,10 @@ export default function Signup() {
                     </label>
                   </div>
 
-                  <button type="submit" disabled={!terms}
+                  <button type="submit" disabled={!terms || loading}
                     className="w-full py-4 bg-[#4cc61e] hover:bg-[#3aaa10] disabled:bg-[#e4e7ed] disabled:text-[#94a3b8] text-white font-bold text-sm rounded-xl transition-all duration-200 hover:shadow-lg hover:shadow-green-200 disabled:cursor-not-allowed mt-1"
                   >
-                    Create my workspace →
+                    {loading ? 'Creating workspace…' : 'Create my workspace →'}
                   </button>
                 </form>
 

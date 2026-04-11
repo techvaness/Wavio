@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { User, Bell, Shield, Palette, CreditCard, MessageSquare, Globe, Code } from 'lucide-react'
+import { User, Bell, Shield, Palette, CreditCard, MessageSquare, Globe, Code, Check } from 'lucide-react'
 
 const tabs = [
   { id:'profile',      label:'Profile',         icon:User },
@@ -16,9 +16,11 @@ const widgetPositions = ['Bottom Right', 'Bottom Left']
 const widgetColors    = ['#1a3fbf','#4cc61e','#8b5cf6','#f59e0b','#ef4444','#06b6d4','#0f172a']
 
 export default function Settings() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [form, setForm]           = useState({ name: user?.name ?? '', email: user?.email ?? '', company: 'Acme Corp', timezone: 'Europe/London', jobTitle: 'Support Lead' })
+  const [saving, setSaving]       = useState(false)
+  const [saveMsg, setSaveMsg]     = useState('')
   const [widgetColor, setWColor]  = useState('#1a3fbf')
   const [widgetPos, setWPos]      = useState('Bottom Right')
   const [widgetGreeting, setWG]   = useState("Hi there 👋 How can we help?")
@@ -73,7 +75,29 @@ export default function Settings() {
                       className="w-full px-3 py-2.5 text-sm rounded-xl border border-[#e4e7ed] focus:outline-none focus:border-[#1a3fbf] transition-colors" />
                   </div>
                 ))}
-                <button className="px-4 py-2.5 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white text-xs font-bold rounded-xl transition-colors">Save changes</button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={async () => {
+                      setSaving(true); setSaveMsg('')
+                      try {
+                        await updateProfile({ name: form.name })
+                        setSaveMsg('Saved!')
+                        setTimeout(() => setSaveMsg(''), 3000)
+                      } catch (e) {
+                        setSaveMsg(e.message || 'Save failed')
+                      } finally { setSaving(false) }
+                    }}
+                    className="px-4 py-2.5 bg-[#1a3fbf] hover:bg-[#2e5de6] disabled:opacity-60 text-white text-xs font-bold rounded-xl transition-colors"
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving…' : 'Save changes'}
+                  </button>
+                  {saveMsg && (
+                    <span className={`text-xs font-semibold ${saveMsg === 'Saved!' ? 'text-[#4cc61e]' : 'text-red-500'}`}>
+                      {saveMsg}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )}

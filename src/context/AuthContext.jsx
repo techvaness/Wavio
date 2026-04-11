@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react'
-import { authApi, setToken, setStoredUser, getStoredUser, clearAuthStorage } from '../api/client'
+import { authApi, profileApi, setToken, setStoredUser, getStoredUser, clearAuthStorage } from '../api/client'
 
 const AuthContext = createContext(null)
 
@@ -8,6 +8,14 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { token, user: u } = await authApi.login(email, password)
+    setToken(token)
+    setStoredUser(u)
+    setUser(u)
+    return u
+  }, [])
+
+  const register = useCallback(async (name, email, password, company) => {
+    const { token, user: u } = await authApi.register(name, email, password, company)
     setToken(token)
     setStoredUser(u)
     setUser(u)
@@ -29,8 +37,15 @@ export function AuthProvider({ children }) {
     })
   }, [])
 
+  const updateProfile = useCallback(async (body) => {
+    const updated = await profileApi.update(body)
+    setStoredUser(updated)
+    setUser(updated)
+    return updated
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateStatus }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateStatus, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )

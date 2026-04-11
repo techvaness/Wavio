@@ -44,9 +44,10 @@ export const api = {
 }
 
 export const authApi = {
-  login:  (email, password) => api.post('/auth/login', { email, password }),
-  logout: ()                => api.post('/auth/logout'),
-  me:     ()                => api.get('/auth/me'),
+  login:    (email, password)              => api.post('/auth/login', { email, password }),
+  register: (name, email, password, company) => api.post('/auth/register', { name, email, password, company }),
+  logout:   ()                             => api.post('/auth/logout'),
+  me:       ()                             => api.get('/auth/me'),
 }
 
 export const convApi = {
@@ -77,7 +78,20 @@ export const dashboardApi = {
 }
 
 export const cannedApi = {
-  list:   ()     => api.get('/canned'),
-  create: (body) => api.post('/canned', body),
-  delete: (id)   => api.delete(`/canned/${id}`),
+  list:   ()           => api.get('/canned'),
+  create: (body)       => api.post('/canned', body),
+  update: (id, body)   => api.patch(`/canned/${id}`, body),
+  delete: (id)         => api.delete(`/canned/${id}`),
+}
+
+export const profileApi = {
+  update: (body) => api.patch('/auth/profile', body),
+}
+
+export const adminApi = {
+  stats:         () => api.get('/admin/stats'),
+  workspaces:    () => api.get('/admin/workspaces'),
+  users:         () => api.get('/admin/users'),
+  conversations: () => api.get('/admin/conversations'),
+  auditLog:      () => api.get('/admin/audit-log'),
 }

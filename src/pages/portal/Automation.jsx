@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Plus, X, ChevronDown, ToggleLeft, ToggleRight, Bot, Clock, Tag, User, MessageSquare, Mail } from 'lucide-react'
+import { cannedApi } from '../../api/client'
 
 const tabs = ['Rules', 'Chatbots', 'Canned Responses', 'Away Message']
 
@@ -17,14 +18,7 @@ const bots = [
   { id:'B2', name:'FAQ Bot',            desc:'Handles top 20 most-asked questions automatically.',         active:false, triggers:0 },
 ]
 
-const canned = [
-  { shortcut:'/greet',  title:'Greeting',         text:'Hi! Thanks for reaching out to our support team. How can I help you today?' },
-  { shortcut:'/sorry',  title:'Apology',           text:"I'm really sorry to hear about this issue. Let me look into it right away." },
-  { shortcut:'/thanks', title:'Thank you',         text:"Thank you for your patience! Is there anything else I can help you with?" },
-  { shortcut:'/close',  title:'Close conversation',text:"I'm going to close this conversation now. Don't hesitate to reach out if you need anything!" },
-  { shortcut:'/refund', title:'Refund processed',  text:"I've processed your refund. It should appear in your account within 3–5 business days." },
-  { shortcut:'/eta',    title:'ETA response',      text:"I'm looking into this right now and will get back to you within 30 minutes." },
-]
+// canned responses loaded from API (see state below)
 
 const triggerOptions = ['New conversation started','Message received','Conversation resolved','Specific keyword in message','Sentiment detected','Time-based (schedule)']
 const actionOptions  = ['Assign to agent','Set priority','Add tag','Send canned response','Send email notification','Close conversation','Add internal note']
@@ -102,6 +96,58 @@ function RuleEditor({ rule, onClose }) {
   )
 }
 
+function NewCannedModal({ onClose, onSaved }) {
+  const [shortcut, setShortcut] = useState('/')
+  const [text, setText] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState('')
+
+  async function handleSave() {
+    if (!shortcut.trim() || !text.trim()) { setErr('Both fields are required'); return }
+    setSaving(true)
+    try {
+      await cannedApi.create({ shortcut: shortcut.trim(), text: text.trim() })
+      onSaved()
+      onClose()
+    } catch (e) {
+      setErr(e.message || 'Save failed')
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
+      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] bg-white rounded-2xl shadow-2xl z-50 p-6"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <div className="flex items-center justify-between mb-4">
+        <p className="font-bold text-[#0f172a]">New Canned Response</p>
+        <button onClick={onClose}><X size={16} className="text-[#94a3b8]" /></button>
+      </div>
+      {err && <p className="text-xs text-red-500 mb-3">{err}</p>}
+      <div className="space-y-3">
+        <div>
+          <label className="block text-[10px] font-bold text-[#475569] uppercase tracking-wide mb-1.5">Shortcut</label>
+          <input value={shortcut} onChange={e => setShortcut(e.target.value)} placeholder="/greet"
+            className="w-full px-3 py-2.5 text-sm font-mono rounded-xl border border-[#e4e7ed] focus:outline-none focus:border-[#1a3fbf] transition-colors" />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-[#475569] uppercase tracking-wide mb-1.5">Response Text</label>
+          <textarea value={text} onChange={e => setText(e.target.value)} rows={4} placeholder="Type your canned response…"
+            className="w-full px-3 py-2.5 text-sm rounded-xl border border-[#e4e7ed] focus:outline-none focus:border-[#1a3fbf] resize-none transition-colors" />
+        </div>
+        <div className="flex gap-3 pt-1">
+          <button onClick={handleSave} disabled={saving}
+            className="flex-1 py-2.5 text-xs font-bold text-white bg-[#1a3fbf] hover:bg-[#2e5de6] disabled:opacity-60 rounded-xl transition-colors">
+            {saving ? 'Saving…' : 'Save response'}
+          </button>
+          <button onClick={onClose} className="px-4 py-2.5 text-xs font-semibold text-[#475569] border border-[#e4e7ed] hover:bg-[#f8fafc] rounded-xl transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Automation() {
   const [tab, setTab]         = useState('Rules')
   const [ruleStates, setRS]   = useState(() => Object.fromEntries(rules.map(r => [r.id, r.status])))
@@ -109,6 +155,14 @@ export default function Automation() {
   const [editRule, setEdit]   = useState(null)
   const [awayMsg, setAway]    = useState("We're away right now but we'll get back to you as soon as possible. Our usual response time is under 2 hours.")
   const [awayOn, setAwayOn]   = useState(false)
+  const [cannedRows, setCanned] = useState([])
+  const [showNewCanned, setShowNewCanned] = useState(false)
+
+  async function loadCanned() {
+    try { setCanned(await cannedApi.list()) } catch { /* ignore */ }
+  }
+
+  useEffect(() => { if (tab === 'Canned Responses') loadCanned() }, [tab])
 
   return (
     <div className="p-5" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -124,7 +178,7 @@ export default function Automation() {
           </button>
         )}
         {tab === 'Canned Responses' && (
-          <button className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-[#1a3fbf] hover:bg-[#2e5de6] rounded-xl transition-colors">
+          <button onClick={() => setShowNewCanned(true)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-[#1a3fbf] hover:bg-[#2e5de6] rounded-xl transition-colors">
             <Plus size={12} /> New response
           </button>
         )}
@@ -205,19 +259,23 @@ export default function Automation() {
 
       {tab === 'Canned Responses' && (
         <div className="space-y-2">
-          {canned.map((c, i) => (
-            <motion.div key={c.shortcut} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
+          {cannedRows.length === 0 && (
+            <div className="py-10 text-center text-xs text-[#94a3b8]">No canned responses yet. Click "New response" to add one.</div>
+          )}
+          {cannedRows.map((c, i) => (
+            <motion.div key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
               className="flex items-start gap-4 bg-white rounded-xl border border-[#e4e7ed] p-4">
               <div className="w-20 flex-shrink-0">
                 <span className="text-xs font-mono font-bold text-[#1a3fbf] bg-[#eef2ff] px-2 py-1 rounded-lg">{c.shortcut}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-[#0f172a] mb-0.5">{c.title}</p>
                 <p className="text-[11px] text-[#64748b] leading-relaxed">{c.text}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button className="text-[10px] font-semibold text-[#64748b] hover:text-[#1a3fbf]">Edit</button>
-                <button className="text-[10px] font-semibold text-red-400 hover:text-red-600">Delete</button>
+                <button onClick={async () => {
+                  await cannedApi.delete(c.id)
+                  loadCanned()
+                }} className="text-[10px] font-semibold text-red-400 hover:text-red-600">Delete</button>
               </div>
             </motion.div>
           ))}
@@ -257,6 +315,13 @@ export default function Automation() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/30 z-40" onClick={() => setShow(false)} />
             <RuleEditor rule={editRule} onClose={() => setShow(false)} />
+          </>
+        )}
+        {showNewCanned && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/30 z-40" onClick={() => setShowNewCanned(false)} />
+            <NewCannedModal onClose={() => setShowNewCanned(false)} onSaved={loadCanned} />
           </>
         )}
       </AnimatePresence>

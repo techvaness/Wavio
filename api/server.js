@@ -11,6 +11,7 @@ import contactRoutes from './routes/contacts.js'
 import teamRoutes from './routes/team.js'
 import dashboardRoutes from './routes/dashboard.js'
 import cannedRoutes from './routes/canned.js'
+import adminRoutes from './routes/admin.js'
 import db from './db.js'
 
 // ── A02/A07: Fail hard if JWT_SECRET is the insecure default in production ────
@@ -26,7 +27,8 @@ const httpServer = createServer(app)
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175',
-     'http://localhost:5176', 'http://localhost:4173']
+     'http://localhost:5176', 'http://localhost:5177', 'http://localhost:5178',
+     'http://localhost:4173']
 
 export const io = new Server(httpServer, {
   cors: { origin: ALLOWED_ORIGINS, credentials: true }
@@ -60,6 +62,7 @@ app.use('/api/contacts',      contactRoutes)
 app.use('/api/team',          teamRoutes)
 app.use('/api/dashboard',     dashboardRoutes)
 app.use('/api/canned',        cannedRoutes)
+app.use('/api/admin',         adminRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }))
 

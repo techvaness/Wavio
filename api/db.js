@@ -16,6 +16,7 @@ db.exec(`
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL,
     plan       TEXT NOT NULL DEFAULT 'starter',
+    status     TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -72,6 +73,14 @@ db.exec(`
     workspace_id INTEGER REFERENCES workspaces(id),
     shortcut     TEXT NOT NULL,
     text         TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS audit_log (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts     TEXT NOT NULL,
+    event  TEXT NOT NULL,
+    actor  TEXT,
+    detail TEXT NOT NULL DEFAULT '{}'
   );
 `)
 

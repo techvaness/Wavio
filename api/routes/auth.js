@@ -4,13 +4,9 @@ import jwt from 'jsonwebtoken'
 import rateLimit from 'express-rate-limit'
 import db from '../db.js'
 import { JWT_SECRET, requireAuth } from '../middleware/auth.js'
+import { audit } from '../audit.js'
 
 const router = Router()
-
-// ── A09: Structured audit log ─────────────────────────────────────────────────
-function audit(event, detail) {
-  console.log(JSON.stringify({ ts: new Date().toISOString(), event, ...detail }))
-}
 
 // ── A07: Rate limit login — 10 attempts per 15 min per IP ────────────────────
 const loginLimiter = rateLimit({
@@ -125,6 +121,22 @@ router.get('/me', requireAuth, (req, res) => {
   ).get(req.user.id)
   if (!user) return res.status(404).json({ error: 'User not found' })
   res.json(user)
+})
+
+router.patch('/profile', requireAuth, (req, res) => {
+  const { name } = req.body
+  const cleanName = name ? String(name).trim().slice(0, 100) : null
+  if (!cleanName) return res.status(400).json({ error: 'Name is required' })
+
+  db.prepare('UPDATE users SET name = ?, avatar = ? WHERE id = ?')
+    .run(cleanName, cleanName[0].toUpperCase(), req.user.id)
+
+  const updated = db.prepare(
+    'SELECT id, email, name, role, status, avatar, workspace_id, created_at FROM users WHERE id = ?'
+  ).get(req.user.id)
+
+  audit('profile.updated', { userId: req.user.id })
+  res.json(updated)
 })
 
 export default router
