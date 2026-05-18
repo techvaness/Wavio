@@ -124,6 +124,11 @@ db.exec(`
     created_at   TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(workspace_id, channel)
   );
+
+  CREATE TABLE IF NOT EXISTS platform_settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `)
 
 // ── Safe migrations (add columns if they don't exist) ────────────────────────

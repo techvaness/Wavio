@@ -6,6 +6,39 @@ import { audit } from '../audit.js'
 const router = Router()
 router.use(requireAuth, requireAdmin)
 
+// ── Platform settings helpers ─────────────────────────────────────────────────
+function getSetting(key, defaultVal) {
+  const row = db.prepare('SELECT value FROM platform_settings WHERE key = ?').get(key)
+  if (!row) return defaultVal
+  try { return JSON.parse(row.value) } catch { return row.value }
+}
+function setSetting(key, value) {
+  db.prepare('INSERT OR REPLACE INTO platform_settings (key, value) VALUES (?, ?)').run(key, JSON.stringify(value))
+}
+
+const DEFAULT_PLAN_CONFIG = {
+  starter:    { name: 'Starter',    price: 0,   conversation_limit: 100,  seat_limit: 2  },
+  pro:        { name: 'Pro',        price: 49,  conversation_limit: 5000, seat_limit: 10 },
+  enterprise: { name: 'Enterprise', price: 299, conversation_limit: -1,   seat_limit: -1 },
+}
+
+const DEFAULT_FLAGS = {
+  ai_suggestions:        true,
+  omnichannel_whatsapp:  true,
+  bot_builder:           false,
+  live_translate:        false,
+  custom_reports:        true,
+  sso:                   false,
+  api_v2:                true,
+}
+
+const DEFAULT_GENERAL = {
+  platform_name:    'Wavio',
+  support_email:    'support@wavio.com',
+  platform_url:     'https://wavio.com',
+  maintenance_mode: false,
+}
+
 // ── Platform-wide stats ───────────────────────────────────────────────────────
 router.get('/stats', (req, res) => {
   const stats = db.prepare(`
@@ -77,6 +110,47 @@ router.patch('/workspaces/:id/status', (req, res) => {
   if (!VALID.has(status)) return res.status(400).json({ error: 'Invalid status' })
   db.prepare('UPDATE workspaces SET status = ? WHERE id = ?').run(status, req.params.id)
   audit('workspace.' + status, { adminId: req.user.id, workspaceId: req.params.id })
+  res.json({ ok: true })
+})
+
+// ── Change workspace plan ─────────────────────────────────────────────────────
+router.patch('/workspaces/:id/plan', (req, res) => {
+  const { plan } = req.body
+  const valid = new Set(['starter', 'free', 'pro', 'enterprise'])
+  if (!valid.has(plan)) return res.status(400).json({ error: 'Invalid plan' })
+  db.prepare('UPDATE workspaces SET plan = ? WHERE id = ?').run(plan, Number(req.params.id))
+  audit('workspace.plan.changed', { adminId: req.user.id, workspaceId: req.params.id, plan })
+  res.json({ ok: true })
+})
+
+// ── General settings ──────────────────────────────────────────────────────────
+router.get('/general-settings', (_req, res) => {
+  res.json(getSetting('general_settings', DEFAULT_GENERAL))
+})
+router.patch('/general-settings', (req, res) => {
+  const { platform_name, support_email, platform_url, maintenance_mode } = req.body
+  setSetting('general_settings', { platform_name, support_email, platform_url, maintenance_mode: !!maintenance_mode })
+  audit('admin.general_settings.updated', { adminId: req.user.id })
+  res.json({ ok: true })
+})
+
+// ── Plan config ───────────────────────────────────────────────────────────────
+router.get('/plan-config', (_req, res) => {
+  res.json(getSetting('plan_config', DEFAULT_PLAN_CONFIG))
+})
+router.patch('/plan-config', (req, res) => {
+  setSetting('plan_config', req.body)
+  audit('admin.plan_config.updated', { adminId: req.user.id })
+  res.json({ ok: true })
+})
+
+// ── Feature flags ─────────────────────────────────────────────────────────────
+router.get('/feature-flags', (_req, res) => {
+  res.json(getSetting('feature_flags', DEFAULT_FLAGS))
+})
+router.patch('/feature-flags', (req, res) => {
+  setSetting('feature_flags', req.body)
+  audit('admin.feature_flags.updated', { adminId: req.user.id })
   res.json({ ok: true })
 })
 

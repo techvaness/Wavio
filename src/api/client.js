@@ -116,11 +116,20 @@ export const profileApi = {
 }
 
 export const adminApi = {
-  stats:         () => api.get('/admin/stats'),
-  workspaces:    () => api.get('/admin/workspaces'),
-  users:         () => api.get('/admin/users'),
-  conversations: () => api.get('/admin/conversations'),
-  auditLog:      () => api.get('/admin/audit-log'),
+  stats:              () => api.get('/admin/stats'),
+  workspaces:         () => api.get('/admin/workspaces'),
+  users:              () => api.get('/admin/users'),
+  conversations:      () => api.get('/admin/conversations'),
+  auditLog:           () => api.get('/admin/audit-log'),
+  getGeneralSettings: () => api.get('/admin/general-settings'),
+  saveGeneralSettings:(body) => api.patch('/admin/general-settings', body),
+  getPlanConfig:      () => api.get('/admin/plan-config'),
+  savePlanConfig:     (body) => api.patch('/admin/plan-config', body),
+  getFeatureFlags:    () => api.get('/admin/feature-flags'),
+  saveFeatureFlags:   (body) => api.patch('/admin/feature-flags', body),
+  changePlan:         (id, plan) => api.patch(`/admin/workspaces/${id}/plan`, { plan }),
+  suspendWorkspace:   (id) => api.patch(`/admin/workspaces/${id}/status`, { status: 'suspended' }),
+  activateWorkspace:  (id) => api.patch(`/admin/workspaces/${id}/status`, { status: 'active' }),
 }
 
 export const analyticsApi = {
