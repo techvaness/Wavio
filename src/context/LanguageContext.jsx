@@ -4,10 +4,10 @@ import translations from '../translations'
 const LanguageContext = createContext(null)
 
 export const languages = [
-  { code: 'en', label: 'English (US)' },
-  { code: 'es', label: 'Español' },
-  { code: 'fr', label: 'Français' },
-  { code: 'de', label: 'Deutsch' },
+  { code: 'en', label: 'English (US)', flagCode: 'us' },
+  { code: 'es', label: 'Español',      flagCode: 'es' },
+  { code: 'fr', label: 'Français',     flagCode: 'fr' },
+  { code: 'de', label: 'Deutsch',      flagCode: 'de' },
 ]
 
 export function LanguageProvider({ children }) {

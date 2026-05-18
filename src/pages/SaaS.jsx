@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Layers, TrendingUp, Users, Bot, Zap, BarChart2, Check } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -22,6 +23,8 @@ const useCases = [
 ]
 
 export default function SaaS() {
+  const { t } = useLanguage()
+  const hero = t('saas.hero')
   return (
     <div className="pt-16">
       {/* Hero */}
@@ -30,14 +33,13 @@ export default function SaaS() {
         <div className="max-w-5xl mx-auto text-center relative">
           <motion.div variants={fadeUp} initial="hidden" animate="visible">
             <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider">
-              <Layers size={12} /> SaaS
+              <Layers size={12} /> {hero.label}
             </span>
             <h1 className="text-3xl md:text-6xl font-bold text-white mb-5 leading-tight" style={{ letterSpacing: '-1px' }}>
-              Grow faster.<br />
-              <span style={{ color: '#4cc61e' }}>Churn less.</span>
+              {hero.title}
             </h1>
             <p className="text-xl text-white/70 max-w-xl mx-auto mb-10">
-              Wavio gives SaaS teams the communication layer they need to activate, retain, and expand revenue,in one platform.
+              {hero.sub}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup" className="px-8 py-4 bg-[#4cc61e] hover:bg-[#3aaa10] text-white font-bold rounded-full text-sm shadow-lg">Start for free</Link>

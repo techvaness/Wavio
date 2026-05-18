@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -67,16 +68,18 @@ const entries = [
 ]
 
 export default function Changelog() {
+  const { t } = useLanguage()
+  const hero = t('changelog.hero')
   return (
     <div className="pt-16">
       {/* Hero */}
       <section className="py-12 md:py-20 px-4 bg-white text-center border-b border-[#e4e7ed]">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Changelog</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            What's new in Wavio.
+            {hero.title}
           </h1>
-          <p className="text-base md:text-xl text-[#475569]">Every change, documented. New features ship weekly.</p>
+          <p className="text-base md:text-xl text-[#475569]">{hero.sub}</p>
         </motion.div>
       </section>
 

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Star, BookOpen, Users, ArrowRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -30,17 +31,19 @@ const tagColors = {
 }
 
 export default function Community() {
+  const { t } = useLanguage()
+  const hero = t('community.hero')
   return (
     <div className="pt-16">
       {/* Hero */}
       <section className="py-12 md:py-24 px-4 text-center bg-white">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Community</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4 md:mb-5" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Learn from 5,000+<br />Wavio teams.
+            {hero.title}
           </h1>
           <p className="text-base md:text-xl text-[#475569] max-w-xl mx-auto mb-6 md:mb-8">
-            Ask questions, share what's working, and vote on what we build next.
+            {hero.sub}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="#" className="px-8 py-4 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white font-bold rounded-full text-sm shadow-md hover:shadow-lg transition-all">

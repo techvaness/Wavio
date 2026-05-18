@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { User, Bell, Shield, Palette, CreditCard, MessageSquare, Globe, Code, Check } from 'lucide-react'
+import LanguagePicker from '../../components/LanguagePicker'
 
 const tabs = [
   { id:'profile',      label:'Profile',         icon:User },
@@ -274,12 +275,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-[#0f172a] mb-2">Language</p>
-                  <select className="w-full px-3 py-2.5 text-sm rounded-xl border border-[#e4e7ed] focus:outline-none focus:border-[#1a3fbf] bg-white text-[#475569]">
-                    <option>English (en)</option>
-                    <option>Français (fr)</option>
-                    <option>Español (es)</option>
-                    <option>Deutsch (de)</option>
-                  </select>
+                  <LanguagePicker placement="down" />
                 </div>
               </div>
             </div>

@@ -2,6 +2,8 @@ import { Router } from 'express'
 import db from '../db.js'
 import { requireAuth } from '../middleware/auth.js'
 import { executeRules } from './automations.js'
+import { sendAssignmentAlert } from '../services/email.js'
+import { stampSla } from '../services/sla.js'
 
 const router = Router()
 
@@ -54,6 +56,40 @@ router.get('/:id', requireAuth, (req, res) => {
   res.json(convo)
 })
 
+// POST /api/conversations — create a new conversation manually
+router.post('/', requireAuth, (req, res) => {
+  const { contact_id, subject, channel = 'chat', priority = 'medium', assigned_to } = req.body
+  if (!contact_id) return res.status(400).json({ error: 'contact_id is required' })
+
+  const VALID_CHANNELS   = new Set(['chat', 'email', 'whatsapp', 'sms', 'instagram'])
+  const VALID_PRIORITIES = new Set(['low', 'medium', 'high'])
+  if (!VALID_CHANNELS.has(channel))    return res.status(400).json({ error: 'Invalid channel' })
+  if (!VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' })
+
+  const contact = db.prepare('SELECT id FROM contacts WHERE id = ? AND workspace_id = ?').get(contact_id, req.user.workspace_id)
+  if (!contact) return res.status(404).json({ error: 'Contact not found' })
+
+  const result = db.prepare(`
+    INSERT INTO conversations (workspace_id, contact_id, subject, channel, status, priority, assigned_to)
+    VALUES (?, ?, ?, ?, 'open', ?, ?)
+  `).run(req.user.workspace_id, contact_id, subject?.trim() || null, channel, priority, assigned_to || null)
+
+  stampSla(result.lastInsertRowid, priority)
+
+  const convo = db.prepare(`
+    SELECT c.*, ct.name AS contact_name, u.name AS assigned_name
+    FROM conversations c
+    LEFT JOIN contacts ct ON ct.id = c.contact_id
+    LEFT JOIN users u ON u.id = c.assigned_to
+    WHERE c.id = ?
+  `).get(result.lastInsertRowid)
+
+  const io = req.app.get('io')
+  if (io) io.to(`workspace:${req.user.workspace_id}`).emit('conversation:new', convo)
+
+  res.status(201).json(convo)
+})
+
 // ── A03: Allowlists for enum fields ──────────────────────────────────────────
 const VALID_STATUSES  = new Set(['open', 'pending', 'resolved'])
 const VALID_PRIORITIES = new Set(['low', 'medium', 'high'])
@@ -71,7 +107,25 @@ router.patch('/:id', requireAuth, (req, res) => {
   if (status)      db.prepare('UPDATE conversations SET status = ?, updated_at = datetime(\'now\') WHERE id = ?').run(status, convo.id)
   if (priority)    db.prepare('UPDATE conversations SET priority = ?, updated_at = datetime(\'now\') WHERE id = ?').run(priority, convo.id)
   if ('assigned_to' in req.body) {
+    const prevAssignee = convo.assigned_to
     db.prepare('UPDATE conversations SET assigned_to = ?, updated_at = datetime(\'now\') WHERE id = ?').run(assigned_to || null, convo.id)
+
+    // Email the newly assigned agent (skip if same agent re-assigned)
+    if (assigned_to && assigned_to !== prevAssignee) {
+      const agent = db.prepare('SELECT email, name FROM users WHERE id = ?').get(assigned_to)
+      const contact = db.prepare('SELECT name FROM contacts WHERE id = ?').get(convo.contact_id)
+      if (agent) {
+        sendAssignmentAlert({
+          agentEmail: agent.email,
+          agentName: agent.name,
+          contactName: contact?.name || 'Unknown',
+          subject: convo.subject,
+          channel: convo.channel,
+          convoId: convo.id,
+          assignedByName: req.user.name,
+        }).catch(() => {})
+      }
+    }
   }
 
   const updated = db.prepare(`

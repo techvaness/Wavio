@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, BookOpen, Zap, Code, Plug, Bot, CreditCard, ChevronRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -59,17 +60,19 @@ const popularArticles = [
 
 export default function Docs() {
   const [query, setQuery] = useState('')
+  const { t } = useLanguage()
+  const hero = t('docs.hero')
 
   return (
     <div className="pt-16">
       {/* Hero + Search */}
       <section className="py-12 md:py-24 px-4 text-center" style={{ background: 'linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%)' }}>
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Documentation</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4 md:mb-5" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            How can we help?
+            {hero.title}
           </h1>
-          <p className="text-base md:text-xl text-[#475569] mb-8 md:mb-10">Search our docs or browse by category below.</p>
+          <p className="text-base md:text-xl text-[#475569] mb-8 md:mb-10">{hero.sub}</p>
 
           {/* Search bar */}
           <div className="max-w-xl mx-auto relative">

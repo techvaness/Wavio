@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Check, Clock, Zap } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -56,16 +57,18 @@ const statusConfig = {
 }
 
 export default function Roadmap() {
+  const { t } = useLanguage()
+  const hero = t('roadmap.hero')
   return (
     <div className="pt-16">
       <section className="py-12 md:py-24 px-4 text-center bg-white">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Roadmap</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4 md:mb-5" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            What's coming to Wavio.
+            {hero.title}
           </h1>
           <p className="text-base md:text-xl text-[#475569] max-w-lg mx-auto mb-6 md:mb-8">
-            We ship every week. Here's what we're building,and what's next.
+            {hero.sub}
           </p>
           <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-sm text-[#1a3fbf] font-medium">
             <span className="w-2 h-2 rounded-full bg-[#1a3fbf] animate-pulse" />

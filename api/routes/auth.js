@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit'
 import db from '../db.js'
 import { JWT_SECRET, requireAuth } from '../middleware/auth.js'
 import { audit } from '../audit.js'
+import { sendWelcomeEmail } from '../services/email.js'
 
 const router = Router()
 
@@ -105,6 +106,9 @@ router.post('/register', registerLimiter, (req, res) => {
   )
 
   audit('auth.register', { userId: newUser.id, email: cleanEmail, ip: req.ip })
+
+  // Send welcome email async — never block response
+  sendWelcomeEmail({ email: cleanEmail, name: cleanName, workspaceName: cleanCompany }).catch(() => {})
 
   res.status(201).json({ token, user: newUser })
 })

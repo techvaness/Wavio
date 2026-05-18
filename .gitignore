@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Environment secrets — never commit .env
+.env
+api/wavio.db
+api/wavio.db-shm
+api/wavio.db-wal
+api/uploads/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

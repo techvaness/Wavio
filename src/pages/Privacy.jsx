@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }
 
@@ -86,13 +87,15 @@ We aim to respond to all privacy inquiries within 5 business days.`,
 ]
 
 export default function Privacy() {
+  const { t } = useLanguage()
+  const hero = t('privacy.hero')
   return (
     <div className="pt-16">
       <section className="py-20 px-4 bg-white border-b border-[#e4e7ed]">
         <motion.div variants={fadeUp} initial="hidden" animate="visible" className="max-w-3xl mx-auto">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Legal</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Privacy Policy
+            {hero.title}
           </h1>
           <p className="text-[#475569]">Effective date: January 15, 2025 · Last updated: April 8, 2025</p>
         </motion.div>

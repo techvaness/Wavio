@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Briefcase, Users, Sliders, Globe, BarChart2, Zap, Check } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -21,6 +22,8 @@ const plans = [
 ]
 
 export default function Agencies() {
+  const { t } = useLanguage()
+  const hero = t('agencies.hero')
   return (
     <div className="pt-16">
       {/* Hero */}
@@ -29,13 +32,13 @@ export default function Agencies() {
         <div className="max-w-5xl mx-auto text-center relative">
           <motion.div variants={fadeUp} initial="hidden" animate="visible">
             <span className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#1a3fbf] text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider">
-              <Briefcase size={12} /> Agencies
+              <Briefcase size={12} /> {hero.label}
             </span>
             <h1 className="text-3xl md:text-6xl font-bold text-[#0f172a] mb-5 leading-tight" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-              One platform.<br />Every client.
+              {hero.title}
             </h1>
             <p className="text-xl text-[#475569] max-w-xl mx-auto mb-10">
-              Manage chat support for all your clients from a single Wavio dashboard. White-label, multi-workspace, built for agencies.
+              {hero.sub}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/contact" className="px-8 py-4 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white font-bold rounded-full text-sm shadow-md hover:shadow-lg">Talk to sales</Link>

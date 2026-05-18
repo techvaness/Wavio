@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MapPin, Clock, ArrowRight, Home, DollarSign, Heart, BookOpen, Sun, Zap } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -37,18 +38,20 @@ const deptColors = {
 
 export default function Careers() {
   const depts = [...new Set(jobs.map(j => j.dept))]
+  const { t } = useLanguage()
+  const hero = t('careers.hero')
 
   return (
     <div className="pt-16">
       {/* Hero */}
       <section className="py-12 md:py-24 px-4 text-center bg-white">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Careers</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4 md:mb-5" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Build the future of<br />customer communication.
+            {hero.title}
           </h1>
           <p className="text-base md:text-xl text-[#475569] max-w-lg mx-auto mb-6 md:mb-8">
-            We're a small, fast team building something genuinely new. Join us.
+            {hero.sub}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-[#475569]">
             <span className="flex items-center gap-1.5"><MapPin size={14} className="text-[#4cc61e]" /> Remote-first</span>

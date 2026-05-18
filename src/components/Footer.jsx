@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
-import { useLanguage, languages } from '../context/LanguageContext'
+import { useLanguage } from '../context/LanguageContext'
+import LanguagePicker from './LanguagePicker'
 
 const TwitterIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -23,7 +24,7 @@ const socials = [
 ]
 
 export default function Footer() {
-  const { t, lang, setLang } = useLanguage()
+  const { t } = useLanguage()
 
   const columns = [
     {
@@ -127,7 +128,7 @@ export default function Footer() {
                   href="mailto:hello@stackwavedigital.com"
                   className="font-semibold text-[#1a3fbf] hover:text-[#2e5de6] transition-colors"
                 >
-                  StackWave Digital
+                  StackWave
                 </a>
               </p>
             </div>
@@ -150,15 +151,7 @@ export default function Footer() {
               </div>
 
               {/* Language picker */}
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value)}
-                className="text-xs text-[#64748b] border border-[#e4e7ed] rounded-lg px-3 py-1.5 bg-white cursor-pointer hover:border-[#1a3fbf] focus:outline-none focus:border-[#1a3fbf] transition-colors"
-              >
-                {languages.map(({ code, label }) => (
-                  <option key={code} value={code}>{label}</option>
-                ))}
-              </select>
+              <LanguagePicker placement="up" />
             </div>
 
           </div>

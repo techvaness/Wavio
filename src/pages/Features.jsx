@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLanguage } from '../context/LanguageContext'
 import {
   MessageSquare, Bot, Globe, Users, BarChart2, Mic,
   Zap, Sliders, BookOpen, Paperclip, ThumbsUp, WifiOff, Star,
@@ -117,18 +118,31 @@ const CheckCell = ({ val }) => {
 
 export default function Features() {
   const [activeTab, setActiveTab] = useState('chat')
+  const { t } = useLanguage()
+  const hero = t('features.hero')
+  const tabLabels = t('features.tabs')
+  const compare = t('features.compare')
+
+  const tabList = [
+    { id: 'chat', label: tabLabels.chat, icon: MessageSquare },
+    { id: 'ai', label: tabLabels.ai, icon: Bot },
+    { id: 'omni', label: tabLabels.omni, icon: Globe },
+    { id: 'crm', label: tabLabels.crm, icon: Users },
+    { id: 'analytics', label: tabLabels.analytics, icon: BarChart2 },
+    { id: 'voice', label: tabLabels.voice, icon: Mic },
+  ]
 
   return (
     <div className="pt-16">
       {/* Hero */}
       <section className="py-12 md:py-24 px-4 bg-white text-center">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Features</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-5" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Everything your team needs.
+            {hero.title}
           </h1>
           <p className="text-base md:text-xl text-[#475569] max-w-xl mx-auto">
-            From live chat to AI to voice, every tool in one platform.
+            {hero.sub}
           </p>
         </motion.div>
       </section>
@@ -137,7 +151,7 @@ export default function Features() {
       <div className="sticky top-16 z-40 bg-white border-b border-[#e4e7ed] shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex overflow-x-auto gap-0 scrollbar-hide">
-            {tabs.map(({ id, label, icon: Icon }) => (
+            {tabList.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
@@ -191,9 +205,9 @@ export default function Features() {
             viewport={{ once: true, margin: '-100px' }}
             className="text-center mb-10 md:mb-12"
           >
-            <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Compare</span>
+            <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{compare.label}</span>
             <h2 className="text-2xl md:text-4xl font-bold text-[#0f172a] mt-3" style={{ letterSpacing: '-0.5px' }}>
-              How Wavio stacks up.
+              {compare.title}
             </h2>
           </motion.div>
 
@@ -202,7 +216,7 @@ export default function Features() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#e4e7ed]">
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#94a3b8]">Feature</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#94a3b8]">{compare.feature}</th>
                   <th className="px-4 py-4 text-center bg-blue-50 border-l-2 border-[#1a3fbf]">
                     <span className="text-sm font-bold text-[#1a3fbf]">Wavio</span>
                   </th>

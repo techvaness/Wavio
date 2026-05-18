@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'
@@ -22,8 +22,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Changelog from './pages/Changelog'
 import Status from './pages/Status'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
+import Auth from './pages/Auth'
+import AuthCallback from './pages/AuthCallback'
 import Roadmap from './pages/Roadmap'
 import Ecommerce from './pages/Ecommerce'
 import SaaS from './pages/SaaS'
@@ -58,7 +58,7 @@ import AuditLog from './pages/control/AuditLog'
 import ControlSettings from './pages/control/Settings'
 
 // Pages that manage their own nav
-const standalonePages = ['/login', '/signup']
+const standalonePages = ['/auth', '/auth/callback']
 
 function PublicLayout() {
   const location = useLocation()
@@ -79,8 +79,11 @@ function PublicLayout() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/changelog" element={<Changelog />} />
         <Route path="/status" element={<Status />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/auth"          element={<Auth />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* Legacy redirects */}
+        <Route path="/login"  element={<Navigate to="/auth" replace />} />
+        <Route path="/signup" element={<Navigate to="/auth?mode=signup" replace />} />
         <Route path="/roadmap" element={<Roadmap />} />
         <Route path="/ecommerce" element={<Ecommerce />} />
         <Route path="/saas" element={<SaaS />} />

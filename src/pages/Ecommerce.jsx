@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Package, CreditCard, TrendingUp, MessageSquare, Bot, Check, ArrowRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
@@ -22,6 +23,8 @@ const metrics = [
 ]
 
 export default function Ecommerce() {
+  const { t } = useLanguage()
+  const hero = t('ecommerce.hero')
   return (
     <div className="pt-16">
       {/* Hero */}
@@ -30,13 +33,13 @@ export default function Ecommerce() {
         <div className="max-w-5xl mx-auto text-center relative">
           <motion.div variants={fadeUp} initial="hidden" animate="visible">
             <span className="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-[#4cc61e] text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider">
-              <ShoppingCart size={12} /> eCommerce
+              <ShoppingCart size={12} /> {hero.label}
             </span>
             <h1 className="text-3xl md:text-6xl font-bold text-[#0f172a] mb-5 leading-tight" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-              Turn conversations<br />into conversions.
+              {hero.title}
             </h1>
             <p className="text-base md:text-xl text-[#475569] max-w-xl mx-auto mb-8 md:mb-10">
-              Wavio gives your eCommerce store the support infrastructure of a $10M brand,starting free.
+              {hero.sub}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/signup" className="px-8 py-4 bg-[#4cc61e] hover:bg-[#3aaa10] text-white font-bold rounded-full transition-all shadow-md hover:shadow-lg text-sm">

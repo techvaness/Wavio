@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -72,6 +73,8 @@ const posts = [
 
 export default function Blog() {
   const [activeCategory, setActiveCategory] = useState('All')
+  const { t } = useLanguage()
+  const hero = t('blog.hero')
 
   const featured = posts.find((p) => p.featured)
   const filtered = posts.filter((p) => !p.featured && (activeCategory === 'All' || p.category === activeCategory))
@@ -81,11 +84,11 @@ export default function Blog() {
       {/* Hero */}
       <section className="py-10 md:py-20 px-4 bg-white text-center">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Blog</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Stories from the team.
+            {hero.title}
           </h1>
-          <p className="text-xl text-[#475569]">Product updates, guides, and engineering deep-dives.</p>
+          <p className="text-xl text-[#475569]">{hero.sub}</p>
         </motion.div>
       </section>
 

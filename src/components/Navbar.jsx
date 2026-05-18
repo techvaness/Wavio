@@ -64,13 +64,13 @@ export default function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              to="/login"
+              to="/auth"
               className="px-4 py-2 text-sm font-semibold text-[#1a3fbf] border border-[#1a3fbf] rounded-full hover:bg-blue-50 transition-all duration-200"
             >
               {t('nav.signIn')}
             </Link>
             <Link
-              to="/signup"
+              to="/auth?mode=signup"
               className="px-5 py-2 text-sm font-semibold text-white bg-[#4cc61e] rounded-full hover:bg-[#3aaa10] transition-all duration-200 shadow-sm hover:shadow-md"
             >
               {t('nav.getStarted')}
@@ -118,14 +118,14 @@ export default function Navbar() {
             </nav>
             <div className="flex flex-col gap-3">
               <Link
-                to="/login"
+                to="/auth"
                 onClick={() => setMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 text-sm font-semibold text-[#1a3fbf] border border-[#1a3fbf] rounded-full hover:bg-blue-50 transition-all"
               >
                 {t('nav.signIn')}
               </Link>
               <Link
-                to="/signup"
+                to="/auth?mode=signup"
                 onClick={() => setMenuOpen(false)}
                 className="w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#4cc61e] rounded-full hover:bg-[#3aaa10] transition-all"
               >

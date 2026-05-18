@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, MessageSquare, Calendar, CheckCircle } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 const TwitterIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -29,11 +30,11 @@ const socials = [
   { icon: LinkedinIcon, label: 'LinkedIn', href: '#', handle: 'linkedin.com/company/wavio' },
 ]
 
-const reasons = ['General inquiry', 'Sales / Enterprise', 'Support', 'Partnership', 'Press / Media', 'Other']
-
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', company: '', reason: '', message: '' })
   const [sent, setSent] = useState(false)
+  const { t } = useLanguage()
+  const ct = t('contact')
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -45,11 +46,11 @@ export default function Contact() {
       {/* Hero */}
       <section className="py-10 md:py-20 px-4 bg-white text-center">
         <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">Contact</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-[#4cc61e]">{ct.hero.label}</span>
           <h1 className="text-3xl md:text-5xl font-bold text-[#0f172a] mt-4 mb-4" style={{ letterSpacing: '-1px', fontFamily: "'DM Sans', sans-serif" }}>
-            Let's talk.
+            {ct.hero.title}
           </h1>
-          <p className="text-base md:text-xl text-[#475569]">We'd love to hear from you.</p>
+          <p className="text-base md:text-xl text-[#475569]">{ct.hero.sub}</p>
         </motion.div>
       </section>
 
@@ -57,15 +58,9 @@ export default function Contact() {
       <section className="pb-12 md:pb-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-14">
           {/* Left: contact info */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-          >
-            <h2 className="text-2xl font-bold text-[#0f172a] mb-8" style={{ letterSpacing: '-0.3px' }}>Get in touch</h2>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }}>
+            <h2 className="text-2xl font-bold text-[#0f172a] mb-8" style={{ letterSpacing: '-0.3px' }}>{ct.details.title}</h2>
 
-            {/* Contact emails */}
             <div className="space-y-4 mb-10">
               {contactDetails.map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center gap-4 p-4 bg-[#f5f6f8] rounded-xl border border-[#e4e7ed]">
@@ -74,15 +69,12 @@ export default function Contact() {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-0.5">{label}</div>
-                    <a href={`mailto:${value}`} className="text-sm font-semibold text-[#1a3fbf] hover:underline">
-                      {value}
-                    </a>
+                    <a href={`mailto:${value}`} className="text-sm font-semibold text-[#1a3fbf] hover:underline">{value}</a>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Book demo */}
             <div className="p-6 rounded-2xl border-2 border-[#1a3fbf] bg-blue-50 mb-10">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#1a3fbf] flex items-center justify-center">
@@ -91,23 +83,18 @@ export default function Contact() {
                 <h3 className="text-base font-bold text-[#0f172a]">Book a live demo</h3>
               </div>
               <p className="text-sm text-[#475569] mb-4 leading-relaxed">
-                See Wavio in action with a 30-minute personalized walkthrough. No sales pressure,just the product.
+                See Wavio in action with a 30-minute personalized walkthrough.
               </p>
               <button className="px-5 py-2.5 bg-[#1a3fbf] text-white font-semibold text-sm rounded-full hover:bg-[#2e5de6] transition-all">
                 Pick a time →
               </button>
             </div>
 
-            {/* Socials */}
             <div>
-              <div className="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-4">Find us on</div>
+              <div className="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-4">{ct.details.social}</div>
               <div className="space-y-3">
                 {socials.map(({ icon: Icon, label, href, handle }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    className="flex items-center gap-3 text-sm text-[#475569] hover:text-[#1a3fbf] transition-colors group"
-                  >
+                  <a key={label} href={href} className="flex items-center gap-3 text-sm text-[#475569] hover:text-[#1a3fbf] transition-colors group">
                     <Icon size={16} className="text-[#94a3b8] group-hover:text-[#1a3fbf] transition-colors" />
                     {handle}
                   </a>
@@ -117,90 +104,51 @@ export default function Contact() {
           </motion.div>
 
           {/* Right: form */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-          >
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }}>
             <div className="bg-white rounded-2xl border border-[#e4e7ed] p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-[#0f172a] mb-6">Send us a message</h2>
+              <h2 className="text-xl font-bold text-[#0f172a] mb-6">{ct.form.send}</h2>
 
               {sent ? (
                 <div className="text-center py-12">
                   <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
                     <CheckCircle size={32} className="text-[#4cc61e]" />
                   </div>
-                  <h3 className="text-lg font-bold text-[#0f172a] mb-2">Message sent!</h3>
-                  <p className="text-sm text-[#475569]">We'll get back to you within 1 business day.</p>
+                  <h3 className="text-lg font-bold text-[#0f172a] mb-2">{ct.form.successTitle}</h3>
+                  <p className="text-sm text-[#475569]">{ct.form.successSub}</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-[#475569] mb-1.5">Full name *</label>
-                      <input
-                        required
-                        type="text"
-                        value={form.name}
-                        onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors"
-                        placeholder="Sarah Kim"
-                      />
+                      <label className="block text-xs font-semibold text-[#475569] mb-1.5">{ct.form.name} *</label>
+                      <input required type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors" placeholder="Sarah Kim" />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-[#475569] mb-1.5">Work email *</label>
-                      <input
-                        required
-                        type="email"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors"
-                        placeholder="sarah@acme.com"
-                      />
+                      <label className="block text-xs font-semibold text-[#475569] mb-1.5">{ct.form.email} *</label>
+                      <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors" placeholder="sarah@acme.com" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">Company</label>
-                    <input
-                      type="text"
-                      value={form.company}
-                      onChange={(e) => setForm({ ...form, company: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors"
-                      placeholder="Acme Inc."
-                    />
+                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">{ct.form.company}</label>
+                    <input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors" placeholder="Acme Inc." />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">Reason for contact</label>
-                    <select
-                      value={form.reason}
-                      onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors bg-white"
-                    >
-                      <option value="">Select a reason...</option>
-                      {reasons.map((r) => <option key={r}>{r}</option>)}
+                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">{ct.form.reason}</label>
+                    <select value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors bg-white">
+                      <option value="">—</option>
+                      {ct.reasons.map((r) => <option key={r}>{r}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">Message *</label>
-                    <textarea
-                      required
-                      rows={5}
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors resize-none"
-                      placeholder="Tell us what's on your mind..."
-                    />
+                    <label className="block text-xs font-semibold text-[#475569] mb-1.5">{ct.form.message} *</label>
+                    <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-[#e4e7ed] focus:border-[#1a3fbf] focus:outline-none text-sm transition-colors resize-none" placeholder={ct.form.placeholder} />
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white font-semibold text-sm rounded-xl transition-all duration-200 hover:shadow-lg"
-                  >
-                    Send message
+                  <button type="submit" className="w-full py-3.5 bg-[#1a3fbf] hover:bg-[#2e5de6] text-white font-semibold text-sm rounded-xl transition-all duration-200 hover:shadow-lg">
+                    {ct.form.send}
                   </button>
                 </form>
               )}
