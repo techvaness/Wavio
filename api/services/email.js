@@ -95,7 +95,7 @@ export async function sendWelcomeEmail({ email, name, workspaceName }) {
     to: email,
     subject: `Welcome to Wavio, ${name}!`,
     text: `Hi ${name},\n\nYour Wavio workspace "${workspaceName}" is ready.\n\nLog in at: ${APP_URL}/login\n\n— The Wavio Team`,
-    html: `<h2>Welcome to Wavio, ${name}! 🎉</h2>
+    html: `<h2>Welcome to Wavio, ${name}!</h2>
 <p>Your workspace <strong>${workspaceName}</strong> is set up and ready to go.</p>
 <p><a href="${APP_URL}/login" style="background:#4f46e5;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;margin-top:12px">Log in to Wavio</a></p>
 <p style="color:#888;font-size:12px">— The Wavio Team</p>`,

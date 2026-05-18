@@ -144,14 +144,20 @@ router.get('/:id/messages', requireAuth, (req, res) => {
   const convo = db.prepare('SELECT id FROM conversations WHERE id = ? AND workspace_id = ?').get(req.params.id, req.user.workspace_id)
   if (!convo) return res.status(404).json({ error: 'Not found' })
 
-  // mark customer messages as read
-  db.prepare('UPDATE messages SET is_read = 1 WHERE conversation_id = ? AND from_type = \'customer\'').run(convo.id)
+  // mark customer/visitor messages as read
+  db.prepare("UPDATE messages SET is_read = 1 WHERE conversation_id = ? AND from_type IN ('customer', 'visitor')").run(convo.id)
 
   const messages = db.prepare(`
     SELECT m.*, u.name AS agent_name FROM messages m
     LEFT JOIN users u ON u.id = m.from_id
     WHERE m.conversation_id = ? ORDER BY m.created_at ASC
   `).all(convo.id)
+
+  // Notify widget that agent has seen visitor messages
+  const io = req.app.get('io')
+  if (io) {
+    io.of('/widget').to(`convo:${convo.id}`).emit('messages:read', { convoId: convo.id })
+  }
 
   res.json(messages)
 })
@@ -186,6 +192,8 @@ router.post('/:id/messages', requireAuth, (req, res) => {
   if (io) {
     io.to(`convo:${convo.id}`).emit('message:new', { convoId: convo.id, message })
     io.to(`workspace:${req.user.workspace_id}`).emit('conversation:updated', { convoId: convo.id })
+    // Also notify widget clients in this conversation
+    io.of('/widget').to(`convo:${convo.id}`).emit('message:new', { convoId: convo.id, message })
   }
 
   res.status(201).json(message)

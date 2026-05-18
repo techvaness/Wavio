@@ -1,6 +1,7 @@
 import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 import db from '../db.js'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireAdmin } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -44,6 +45,44 @@ router.patch('/:id/status', requireAuth, (req, res) => {
   }
 
   res.json({ ok: true, status })
+})
+
+// ── POST /api/team — invite a new agent (admin only) ─────────────────────────
+router.post('/', requireAuth, requireAdmin, (req, res) => {
+  const { name, email, password, role = 'agent' } = req.body
+  if (!name?.trim())  return res.status(400).json({ error: 'Name is required' })
+  if (!email?.trim()) return res.status(400).json({ error: 'Email is required' })
+  if (!password || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' })
+  if (!['agent', 'admin'].includes(role)) return res.status(400).json({ error: 'Invalid role' })
+
+  const cleanEmail = String(email).toLowerCase().trim().slice(0, 254)
+  const cleanName  = String(name).trim().slice(0, 100)
+
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail)
+  if (existing) return res.status(409).json({ error: 'An account with that email already exists' })
+
+  const result = db.prepare(
+    'INSERT INTO users (workspace_id, email, password, name, role, status, avatar) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(req.user.workspace_id, cleanEmail, bcrypt.hashSync(password, 10), cleanName, role, 'offline', cleanName[0].toUpperCase())
+
+  const user = db.prepare(
+    'SELECT id, name, email, role, status, avatar, created_at FROM users WHERE id = ?'
+  ).get(result.lastInsertRowid)
+
+  res.status(201).json({ ...user, open_convos: 0, resolved_convos: 0 })
+})
+
+// ── DELETE /api/team/:id — remove a team member (admin only) ─────────────────
+router.delete('/:id', requireAuth, requireAdmin, (req, res) => {
+  const targetId = Number(req.params.id)
+  if (targetId === req.user.id) return res.status(400).json({ error: 'Cannot remove yourself' })
+
+  const target = db.prepare('SELECT id FROM users WHERE id = ? AND workspace_id = ?').get(targetId, req.user.workspace_id)
+  if (!target) return res.status(404).json({ error: 'User not found' })
+
+  db.prepare('UPDATE conversations SET assigned_to = NULL WHERE assigned_to = ?').run(targetId)
+  db.prepare('DELETE FROM users WHERE id = ?').run(targetId)
+  res.json({ ok: true })
 })
 
 export default router

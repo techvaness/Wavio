@@ -50,7 +50,7 @@ export default function PortalDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-[#0f172a]" style={{ letterSpacing: '-0.5px' }}>
-            {greeting}, {user?.name?.split(' ')[0]} 👋
+            {greeting}, {user?.name?.split(' ')[0]}
           </h1>
           <p className="text-xs text-[#64748b] mt-0.5">{new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · Your workspace at a glance</p>
         </div>
@@ -105,7 +105,7 @@ export default function PortalDashboard() {
               </Link>
             ))}
             {!data?.myQueue?.length && (
-              <div className="py-10 text-center text-xs text-[#94a3b8]">Queue is clear — great work! 🎉</div>
+              <div className="py-10 text-center text-xs text-[#94a3b8]">Queue is clear — great work!</div>
             )}
           </div>
         </motion.div>

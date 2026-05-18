@@ -44,8 +44,17 @@ export function AuthProvider({ children }) {
     return updated
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const updated = await authApi.me()
+      setStoredUser(updated)
+      setUser(updated)
+      return updated
+    } catch {}
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateStatus, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateStatus, updateProfile, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

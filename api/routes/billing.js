@@ -50,8 +50,20 @@ router.get('/subscriptions', requireAuth, requireAdmin, (req, res) => {
 router.get('/plan', requireAuth, (req, res) => {
   const ws = db.prepare('SELECT id, name, plan, status FROM workspaces WHERE id = ?').get(req.user.workspace_id)
   if (!ws) return res.status(404).json({ error: 'Workspace not found' })
+
+  const PLAN_LIMITS = { starter: 100, free: 100, pro: 5000, enterprise: 50000 }
+  const limit = PLAN_LIMITS[ws.plan] ?? 100
+
+  const now = new Date()
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01 00:00:00`
+  const { count: used } = db.prepare(
+    'SELECT COUNT(*) as count FROM conversations WHERE workspace_id = ? AND created_at >= ?'
+  ).get(req.user.workspace_id, monthStart)
+
+  const agentCount = db.prepare('SELECT COUNT(*) as count FROM users WHERE workspace_id = ?').get(req.user.workspace_id).count
+
   const stripeConfigured = !!process.env.STRIPE_SECRET_KEY
-  res.json({ ...ws, stripe_configured: stripeConfigured, plans: PLAN_MRR })
+  res.json({ ...ws, stripe_configured: stripeConfigured, plans: PLAN_MRR, used, limit, agent_count: agentCount })
 })
 
 // POST /api/billing/checkout — create Stripe Checkout session for plan upgrade

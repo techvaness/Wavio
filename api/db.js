@@ -126,6 +126,21 @@ db.exec(`
   );
 `)
 
+// ── Safe migrations (add columns if they don't exist) ────────────────────────
+;[
+  "ALTER TABLE workspaces ADD COLUMN status TEXT DEFAULT 'active'",
+  "ALTER TABLE workspaces ADD COLUMN api_key TEXT",
+  "ALTER TABLE workspaces ADD COLUMN webhook_url TEXT",
+  "ALTER TABLE workspaces ADD COLUMN webhook_events TEXT DEFAULT '[\"conversation.created\",\"conversation.resolved\",\"message.received\",\"contact.created\"]'",
+  "ALTER TABLE workspaces ADD COLUMN widget_name TEXT DEFAULT 'Support'",
+  "ALTER TABLE workspaces ADD COLUMN widget_color TEXT DEFAULT '#1a3fbf'",
+  "ALTER TABLE workspaces ADD COLUMN widget_greeting TEXT DEFAULT 'Hi there! How can we help?'",
+  "ALTER TABLE workspaces ADD COLUMN widget_position TEXT DEFAULT 'Bottom Right'",
+  "ALTER TABLE workspaces ADD COLUMN widget_online INTEGER DEFAULT 1",
+  "ALTER TABLE users ADD COLUMN notification_prefs TEXT",
+  "ALTER TABLE users ADD COLUMN avatar_url TEXT",
+].forEach(sql => { try { db.exec(sql) } catch {} })
+
 // ── Seed ─────────────────────────────────────────────────────────────────────
 
 function seed() {

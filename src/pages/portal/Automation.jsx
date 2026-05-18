@@ -65,7 +65,7 @@ function RuleEditor({ rule, onClose, onSaved }) {
 
         <div>
           <label className="block text-[10px] font-bold text-[#475569] uppercase tracking-wide mb-1.5">
-            <span className="text-amber-600">⚡ WHEN (trigger)</span>
+            <span className="text-amber-600">WHEN (trigger)</span>
           </label>
           <select value={trigger} onChange={e => setTrigger(e.target.value)}
             className="w-full px-3 py-2.5 text-sm rounded-xl border border-[#e4e7ed] focus:outline-none focus:border-[#1a3fbf] bg-white text-[#475569]">

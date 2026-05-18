@@ -40,7 +40,7 @@ export const api = {
   get:    (path)       => request(path),
   post:   (path, body) => request(path, { method: 'POST',   body: JSON.stringify(body) }),
   patch:  (path, body) => request(path, { method: 'PATCH',  body: JSON.stringify(body) }),
-  delete: (path)       => request(path, { method: 'DELETE' }),
+  delete: (path, body) => request(path, { method: 'DELETE', ...(body ? { body: JSON.stringify(body) } : {}) }),
 }
 
 export const authApi = {
@@ -53,6 +53,7 @@ export const authApi = {
 export const convApi = {
   list:        (params = {}) => api.get('/conversations?' + new URLSearchParams(params).toString()),
   get:         (id)          => api.get(`/conversations/${id}`),
+  create:      (body)        => api.post('/conversations', body),
   update:      (id, body)    => api.patch(`/conversations/${id}`, body),
   messages:    (id)          => api.get(`/conversations/${id}/messages`),
   sendMessage: (id, text, type) => api.post(`/conversations/${id}/messages`, { text, type }),
@@ -70,6 +71,8 @@ export const contactApi = {
 export const teamApi = {
   list:      ()           => api.get('/team'),
   setStatus: (id, status) => api.patch(`/team/${id}/status`, { status }),
+  invite:    (body)       => api.post('/team', body),
+  remove:    (id)         => api.delete(`/team/${id}`),
 }
 
 export const dashboardApi = {
@@ -85,7 +88,31 @@ export const cannedApi = {
 }
 
 export const profileApi = {
-  update: (body) => api.patch('/auth/profile', body),
+  update:            (body) => api.patch('/auth/profile', body),
+  changePassword:    (body) => api.post('/auth/change-password', body),
+  deleteAccount:     (body) => api.delete('/auth/account', body),
+  getApiKey:         ()     => api.get('/auth/api-key'),
+  regenerateApiKey:  ()     => api.post('/auth/api-key/regenerate'),
+  getWebhook:        ()     => api.get('/auth/webhook'),
+  saveWebhook:       (body) => api.patch('/auth/webhook', body),
+  getWidget:         ()     => api.get('/auth/widget'),
+  saveWidget:        (body) => api.patch('/auth/widget', body),
+  getNotifications:  ()     => api.get('/auth/notifications'),
+  saveNotifications: (body) => api.patch('/auth/notifications', body),
+  uploadAvatar: (file) => {
+    const form = new FormData()
+    form.append('avatar', file)
+    const token = getToken()
+    return fetch('/api/auth/avatar', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    }).then(async r => {
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Upload failed')
+      return d
+    })
+  },
 }
 
 export const adminApi = {
@@ -115,6 +142,7 @@ export const integrationsApi = {
 }
 
 export const billingApi = {
+  plan:          () => api.get('/billing/plan'),
   summary:       () => api.get('/billing/summary'),
   subscriptions: () => api.get('/billing/subscriptions'),
 }

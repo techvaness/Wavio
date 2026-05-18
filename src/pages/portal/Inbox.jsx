@@ -111,43 +111,71 @@ export default function Inbox() {
       if (active?.id === convoId) {
         setMessages(prev => [...prev, message])
       }
-      // update thread list preview + unread
-      setThreads(prev => prev.map(t =>
-        t.id === convoId
-          ? { ...t, last_message: message.text, last_message_at: message.created_at, unread_count: active?.id === convoId ? 0 : (t.unread_count || 0) + (message.from_type === 'customer' ? 1 : 0) }
-          : t
-      ))
+      // update thread list preview + unread; reload if conversation not yet in list
+      setThreads(prev => {
+        const exists = prev.some(t => t.id === convoId)
+        if (!exists) { loadThreads(); return prev }
+        const isIncoming = ['customer', 'visitor'].includes(message.from_type)
+        return prev.map(t =>
+          t.id === convoId
+            ? { ...t, last_message: message.text, last_message_at: message.created_at,
+                unread_count: active?.id === convoId ? 0 : (t.unread_count || 0) + (isIncoming ? 1 : 0) }
+            : t
+        )
+      })
     }
 
     function onConvoUpdated({ convoId }) {
-      // refresh thread in list
-      convApi.get(convoId).then(updated => {
-        setThreads(prev => prev.map(t => t.id === convoId ? { ...t, ...updated } : t))
-        if (active?.id === convoId) setActive(prev => ({ ...prev, ...updated }))
-      }).catch(console.error)
+      setThreads(prev => {
+        const exists = prev.some(t => t.id === convoId)
+        if (!exists) {
+          // New conversation from widget — reload the full list
+          loadThreads()
+          return prev
+        }
+        convApi.get(convoId).then(updated => {
+          setThreads(p => p.map(t => t.id === convoId ? { ...t, ...updated } : t))
+          if (active?.id === convoId) setActive(a => ({ ...a, ...updated }))
+        }).catch(console.error)
+        return prev
+      })
     }
 
-    function onTypingStart({ userId: uid, name, convoId }) {
-      if (active?.id !== convoId || uid === user?.id) return
-      setTypingUsers(prev => prev.includes(name) ? prev : [...prev, name])
+    function onConvoNew() {
+      loadThreads()
+    }
+
+    function onTypingStart({ userId: uid, name, convoId, isVisitor }) {
+      if (active?.id !== convoId) return
+      if (!isVisitor && uid === user?.id) return
+      const label = isVisitor ? 'Visitor' : name
+      setTypingUsers(prev => prev.includes(label) ? prev : [...prev, label])
     }
 
     function onTypingStop({ userId: uid, convoId }) {
       if (active?.id !== convoId) return
-      // find and remove by userId – we stored names so just clear all for simplicity
       setTypingUsers([])
+    }
+
+    function onMessagesRead({ convoId }) {
+      if (active?.id !== convoId) return
+      setMessages(prev => prev.map(m => m.from_type === 'agent' ? { ...m, is_read: 1 } : m))
     }
 
     socket.on('message:new', onNewMessage)
     socket.on('conversation:updated', onConvoUpdated)
+    socket.on('conversation:new', onConvoNew)
     socket.on('typing:start', onTypingStart)
     socket.on('typing:stop', onTypingStop)
+    socket.on('messages:read', onMessagesRead)
 
     return () => {
       socket.off('message:new', onNewMessage)
       socket.off('conversation:updated', onConvoUpdated)
+      socket.off('conversation:new', onConvoNew)
       socket.off('typing:start', onTypingStart)
       socket.off('typing:stop', onTypingStop)
+      socket.off('messages:read', onMessagesRead)
     }
   }, [socket, active, user])
 
@@ -339,7 +367,7 @@ export default function Inbox() {
               </div>
               <button onClick={handleResolve}
                 className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-colors ${active.status === 'resolved' ? 'text-blue-700 bg-blue-100 hover:bg-blue-200' : 'text-emerald-700 bg-emerald-100 hover:bg-emerald-200'}`}>
-                {active.status === 'resolved' ? '↩ Reopen' : '✓ Resolve'}
+                {active.status === 'resolved' ? 'Reopen' : 'Resolve'}
               </button>
               <button onClick={() => setContact(!showContact)}
                 className="p-1.5 rounded-lg text-[#64748b] hover:bg-[#f1f5f9] transition-colors" title="Toggle contact panel">

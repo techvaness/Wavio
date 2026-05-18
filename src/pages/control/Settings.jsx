@@ -152,7 +152,7 @@ export default function ControlSettings() {
                           return (
                             <td key={name} className="py-3 px-3 text-center">
                               {type === 'bool' ? (
-                                <span className={`text-[10px] font-bold ${value ? 'text-emerald-600' : 'text-red-400'}`}>{value ? '✓' : '✗'}</span>
+                                <span className={`text-[10px] font-bold ${value ? 'text-emerald-600' : 'text-red-400'}`}>{value ? 'Yes' : 'No'}</span>
                               ) : type === 'number' ? (
                                 <input type="number" defaultValue={value}
                                   className="w-20 text-xs text-center border border-[#e4e7ed] rounded-lg py-1 focus:outline-none focus:border-[#1a3fbf]" />

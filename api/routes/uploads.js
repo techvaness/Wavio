@@ -62,7 +62,7 @@ router.post('/:convoId', requireAuth, upload.single('file'), (req, res) => {
   const result = db.prepare(`
     INSERT INTO messages (conversation_id, from_type, from_id, text, attachment_url, attachment_name, attachment_size, is_read)
     VALUES (?, 'agent', ?, ?, ?, ?, ?, 1)
-  `).run(convo.id, req.user.id, `📎 ${req.file.originalname}`, url, req.file.originalname, req.file.size)
+  `).run(convo.id, req.user.id, `[file] ${req.file.originalname}`, url, req.file.originalname, req.file.size)
 
   db.prepare("UPDATE conversations SET updated_at = datetime('now') WHERE id = ?").run(convo.id)
 
